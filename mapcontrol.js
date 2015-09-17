@@ -131,7 +131,14 @@ function createMapControl(elementName) {
             map.fitBounds(trackLine.getBounds());
         },
 
-        addTask: function (coordinates, names) {
+        zapTask: function()  {
+            if (mapLayers.task) {
+                map.removeLayer(mapLayers.task);
+                layersControl.removeLayer(mapLayers.task);
+            }
+        },
+        
+       addTask: function (coordinates, names) {
             //Clearer if we don't show track to and from start line and finish line, as we are going to show lines
             var taskLayers = [L.polyline(coordinates, { color: 'blue' })];
             var taskDrawOptions = {

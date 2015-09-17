@@ -79,6 +79,10 @@ body {
     margin-bottom: 30px;
 }
 
+#task  {
+    display: none;
+}
+
 #igcFileDisplay {
     display: none;
 }

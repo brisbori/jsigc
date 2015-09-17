@@ -4,6 +4,83 @@
     var igcFile = null;
     var barogramPlot = null;
     var altitudeConversionFactor = 1.0; // Conversion from metres to required units
+    var userTask = null;
+    
+    function showDeclaration(task)  {
+          if(task.coordinates[0][0] !==0) {
+                    $('#task').show();
+                    var taskList = $('#task ul').first().html('');
+                    var j;
+                   var pointlist=[];
+                   var tasklength=0;
+                   var canmeasure= true;
+                   if(task.takeoff.length > 0) {
+                        taskList.append($('<li> </li>').text("Takeoff: : " + task.takeoff)); 
+                   }
+                    for (j =0; j < task.names.length; j++) {
+                            pointlist.push( L.latLng(task.coordinates[j][0], task.coordinates[j][1]));
+                            switch(j)  {
+                            case 0:
+                                taskList.append($('<li> </li>').text("Start: " + task.names[j]));
+                                    break;
+                            case ( task.names.length-1):
+                                    taskList.append($('<li> </li>').text("Finish: " + task.names[j]));
+                                    break;
+                            default:
+                                   taskList.append($('<li></li>').text("TP" + (j).toString() + ": " + task.names[j]));
+                        }
+                    }
+                   if(task.landing.length > 0) {
+                        taskList.append($('<li> </li>').text("Landing: : " + task.landing)); 
+                   }
+                   for(j = 0; j < task.coordinates.length-1 ; j ++)  {
+                      if ((task.coordinates[j][0] !==0) && (task.coordinates[j+1][0] !==0))  {
+                                tasklength+=pointlist[j].distanceTo(pointlist[j+1]);
+                             }
+                        else  {
+                            canmeasure=false;
+                       }
+                   }
+                   if (canmeasure)  {
+                            $('#tasklength').text("Task Length: " + (tasklength/1000).toFixed(1) + " Km");
+                   }
+          }
+           else {
+            $('#task').hide();
+           }
+        }    
+    
+      function clearTask(mapControl)  {
+       userTask=null;
+        $('#task ul').empty();
+        $('#userTask').val("");
+        $('#task').hide();
+        mapControl.zapTask();
+    }
+      
+    function getTask(mapControl)   {
+        //Accept lower case- easier for touch screens
+        var taskdef=$('#userTask').val().toUpperCase();
+       if(taskdef.match("^[A-Z0-9]{3}(-[A-Z0-9]{3})+$")) {
+            $('#userTask').val(taskdef);
+          $.post("getTask.php",{taskdef: taskdef} , function(data,status) {
+          userTask=JSON.parse(data);
+          userTask.takeoff="";
+           userTask.landing="";
+           showDeclaration(userTask);
+           mapControl.zapTask();
+            mapControl.addTask(userTask.coordinates,userTask.names);
+         });
+       }
+       else  {
+           if(taskdef.trim().length===0)  {
+               clearTask();
+            }
+            else  {
+           alert("Incorrect task format");
+           }
+       }           
+    }
     
     function plotBarogram() {
         var nPoints = igcFile.recordTime.length;
@@ -55,7 +132,6 @@
         var positionText=positionDisplay(currentPosition);
         var unitName = $('#altitudeUnits').val();
         $('#timePositionDisplay').text(
-           // igcFile.recordTime[timeIndex].toUTCString() + ': ' +
              igcFile.recordTime[timeIndex].getUTCHours() + ':' +pad( igcFile.recordTime[timeIndex].getUTCMinutes()) + ':' + pad(igcFile.recordTime[timeIndex].getSeconds()) + ' UTC; ' + 
             (igcFile.pressureAltitude[timeIndex] * altitudeConversionFactor).toFixed(0) + ' ' +
             unitName + ' (barometric) / ' +
@@ -73,7 +149,18 @@
     }
     
     function displayIgc(mapControl) {
-        // Display the headers.
+        
+        // Show the task declaration if it is present.
+        if ((igcFile.task.coordinates.length > 0) && (userTask===null))   {
+               showDeclaration(igcFile.task);
+                mapControl.addTask(igcFile.task.coordinates, igcFile.task.names);
+                }
+                else  {
+                    if(userTask!==null) {
+                            mapControl.addTask(userTask.coordinates,userTask.names);
+                    }
+                }
+        // Display the headers.        
         var headerTable = $('#headerInfo tbody');
         headerTable.html('');
         var headerName;
@@ -83,40 +170,6 @@
                 $('<tr></tr>').append($('<th></th>').text(igcFile.headers[headerIndex].name))
                               .append($('<td></td>').text(igcFile.headers[headerIndex].value))
             );
-        }
-
-        // Show the task declaration if it is present.
-        
-        if (igcFile.task.coordinates.length > 0) {
-            //eliminate anything with empty start line coordinates
-            if(igcFile.task.coordinates[0][0] !==0) {
-                    $('#task').show();
-                    var taskList = $('#task ul').first().html('');
-                    var j;
-                    //Now add TP numbers.  Change to unordered list
-                    if(igcFile.task.takeoff.length > 0) {
-                               taskList.append($('<li> </li>').text("Takeoff: " + igcFile.task.takeoff));
-                    }
-                    for (j =0; j <igcFile.task.names.length; j++) {
-                            switch(j)  {
-                            case 0:
-                                    taskList.append($('<li> </li>').text("Start: " + igcFile.task.names[j]));
-                                    break;
-                            case ( igcFile.task.names.length-1):
-                                    taskList.append($('<li> </li>').text("Finish: " + igcFile.task.names[j]));
-                                    break;
-                            default:
-                                    taskList.append($('<li></li>').text("TP" + (j).toString() + ": " + igcFile.task.names[j]));
-                        }
-                    }
-                 if(igcFile.task.landing.length > 0) {
-                        taskList.append($('<li> </li>').text("Landing: : " + igcFile.task.landing)); 
-                 }
-                mapControl.addTask(igcFile.task.coordinates, igcFile.task.names);
-                }
-        }
-        else {
-            $('#task').hide();
         }
 
         // Reveal the map and graph. We have to do this before
@@ -163,7 +216,6 @@
     
     $(document).ready(function () {
         var mapControl = createMapControl('map');
-
         $('#fileControl').change(function () {
             if (this.files.length > 0) {
                 var reader = new FileReader();
@@ -233,7 +285,15 @@
            $('#timeSlider').val(curTime);
           updateTimeline(curTime, mapControl);
         });
-        
+ 
+         $('#taskEntryButton').click(function() {
+             getTask(mapControl);
+         });
+         
+      $('#taskClearButton').click(function() {
+             clearTask(mapControl);
+         });    
+      
          $('#barogram').on('plotclick', function (event, pos, item) {
              console.log('plot click');
              if (item) {
@@ -242,4 +302,5 @@
              }
          });
     });
+            
 }(jQuery));

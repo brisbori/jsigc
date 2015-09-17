@@ -44,9 +44,14 @@
             <strong>Please enable JavaScript to use this application.</strong>
         </p>
     </noscript>
-
-    <label for="fileControl">Select a file to view:</label>
+    
+ <p>Enter task below  in format "XXX-XXX-XXX" using trigraphs or  leave blank to use declaration in IGC file<br>
+   <button id="taskClearButton">Clear  task</button><input id="userTask" type="text" autocomplete="off"/><button id="taskEntryButton">Enter task</button>
+   </p>
+   <br>
+<p><label for="fileControl">Select a file to view:</label>
     <input id="fileControl" type="file" />
+    </p>
 
     <p>
         <em>Note:</em> The file will be processed entirely within your web browser.
@@ -65,19 +70,20 @@
         </select>
     </p>
 
+    <div id="task">
+            <h2> Task </h2>
+            <ul>
+            </ul>
+            <span id="tasklength"></span>
+        </div>
+    
     <div id="igcFileDisplay">
-        <h2> Flight Information </h2>
 
+        <h2> Flight Information </h2>
         <table id="headerInfo">
             <tbody></tbody>
         </table>
 
-        <div id="task">
-            <h2> Task </h2>
-            <ul>
-            </ul>
-        </div>
-        
         <div id="mapWrapper">
             <div id="map"></div>
             <div id="slider">
