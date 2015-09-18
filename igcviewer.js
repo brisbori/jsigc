@@ -44,6 +44,9 @@
                    if (canmeasure)  {
                             $('#tasklength').text("Task Length: " + (tasklength/1000).toFixed(1) + " Km");
                    }
+                   else {
+                            $('#tasklength').text("");
+                   }                       
           }
            else {
             $('#task').hide();
@@ -64,13 +67,15 @@
        if(taskdef.match("^[A-Z0-9]{3}(-[A-Z0-9]{3})+$")) {
             $('#userTask').val(taskdef);
           $.post("getTask.php",{taskdef: taskdef} , function(data,status) {
-          userTask=JSON.parse(data);
-          userTask.takeoff="";
-           userTask.landing="";
-           showDeclaration(userTask);
-           mapControl.zapTask();
-            mapControl.addTask(userTask.coordinates,userTask.names);
-         });
+              if(status==="success")  {
+                    showDeclaration(data);
+                     if(data.canshow==="yes")  {
+                            userTask=data;
+                            mapControl.zapTask();
+                            mapControl.addTask(userTask.coordinates,userTask.names);
+                       }
+              }
+         },"json");
        }
        else  {
            if(taskdef.trim().length===0)  {
