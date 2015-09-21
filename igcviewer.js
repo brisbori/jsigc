@@ -7,50 +7,46 @@
     var userTask = null;
     
     function showDeclaration(task)  {
-          if(task.coordinates[0][0] !==0) {
-                    $('#task').show();
-                    var taskList = $('#task ul').first().html('');
-                    var j;
-                   var pointlist=[];
-                   var tasklength=0;
-                   var canmeasure= true;
-                   if(task.takeoff.length > 0) {
-                        taskList.append($('<li> </li>').text("Takeoff: : " + task.takeoff)); 
-                   }
-                    for (j =0; j < task.names.length; j++) {
-                            pointlist.push( L.latLng(task.coordinates[j][0], task.coordinates[j][1]));
-                            switch(j)  {
-                            case 0:
-                                taskList.append($('<li> </li>').text("Start: " + task.names[j]));
-                                    break;
-                            case ( task.names.length-1):
-                                    taskList.append($('<li> </li>').text("Finish: " + task.names[j]));
-                                    break;
-                            default:
-                                   taskList.append($('<li></li>').text("TP" + (j).toString() + ": " + task.names[j]));
-                        }
-                    }
-                   if(task.landing.length > 0) {
-                        taskList.append($('<li> </li>').text("Landing: : " + task.landing)); 
-                   }
-                   for(j = 0; j < task.coordinates.length-1 ; j ++)  {
-                      if ((task.coordinates[j][0] !==0) && (task.coordinates[j+1][0] !==0))  {
-                                tasklength+=pointlist[j].distanceTo(pointlist[j+1]);
-                             }
-                        else  {
-                            canmeasure=false;
-                       }
-                   }
-                   if (canmeasure)  {
-                            $('#tasklength').text("Task Length: " + (tasklength/1000).toFixed(1) + " Km");
-                   }
-                   else {
-                            $('#tasklength').text("");
-                   }                       
-          }
-           else {
-            $('#task').hide();
+        //No longer testing for empty start coordinates as this is done before function is called
+        $('#task').show();
+        var taskList = $('#task ul').first().html('');
+         var j;
+         var pointlist=[];
+         var tasklength=0;
+         var canmeasure= true;
+         if(task.takeoff.length > 0) {
+         taskList.append($('<li> </li>').text("Takeoff: : " + task.takeoff)); 
            }
+         for (j =0; j < task.names.length; j++) {
+         pointlist.push( L.latLng(task.coordinates[j][0], task.coordinates[j][1]));
+         switch(j)  {
+                 case 0:
+                     taskList.append($('<li> </li>').text("Start: " + task.names[j]));
+                     break;
+                     case ( task.names.length-1):
+                          taskList.append($('<li> </li>').text("Finish: " + task.names[j]));
+                          break;
+                      default:
+                            taskList.append($('<li></li>').text("TP" + (j).toString() + ": " + task.names[j]));
+                   }
+               }
+               if(task.landing.length > 0) {
+                    taskList.append($('<li> </li>').text("Landing: : " + task.landing)); 
+              }
+               for(j = 0; j < task.coordinates.length-1 ; j ++)  {
+                    if ((task.coordinates[j][0] !==0) && (task.coordinates[j+1][0] !==0))  {
+                            tasklength+=pointlist[j].distanceTo(pointlist[j+1]);
+                         }
+                   else  {
+                         canmeasure=false;
+                     }
+                }
+                 if (canmeasure)  {
+                         $('#tasklength').text("Task Length: " + (tasklength/1000).toFixed(1) + " Km");
+                }
+                else {
+                         $('#tasklength').text("");
+                 }                       
         }    
     
       function clearTask(mapControl)  {
@@ -154,9 +150,8 @@
     }
     
     function displayIgc(mapControl) {
-        
-        // Show the task declaration if it is present.
-        if ((igcFile.task.coordinates.length > 0) && (userTask===null))   {
+        //Display task if there is anything to display
+        if ((igcFile.task.coordinates.length > 0) && (userTask===null) && (igcFile.task.coordinates[0][0]!==0))    {
                showDeclaration(igcFile.task);
                 mapControl.addTask(igcFile.task.coordinates, igcFile.task.names);
                 }
@@ -164,19 +159,21 @@
                     if(userTask!==null) {
                             mapControl.addTask(userTask.coordinates,userTask.names);
                     }
+                    else {
+                        $('#task').hide();
+                    }
                 }
-        // Display the headers.        
+        // Display the headers.
         var headerTable = $('#headerInfo tbody');
         headerTable.html('');
         var headerName;
         var headerIndex;
         for (headerIndex = 0; headerIndex < igcFile.headers.length; headerIndex++) {
-            headerTable.append(
+           headerTable.append(
                 $('<tr></tr>').append($('<th></th>').text(igcFile.headers[headerIndex].name))
                               .append($('<td></td>').text(igcFile.headers[headerIndex].value))
             );
         }
-
         // Reveal the map and graph. We have to do this before
         // setting the zoom level of the map or plotting the graph.
         $('#igcFileDisplay').show();
