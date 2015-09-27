@@ -5,6 +5,19 @@
     var barogramPlot = null;
     var altitudeConversionFactor = 1.0; // Conversion from metres to required units
     var userTask = null;
+
+    
+    function showAirspace(mapControl)  {
+     //use instead of $.json to avoid load from cache
+       $.ajax({
+       cache: false,
+       url: "ukair.json",
+       dataType: "json",
+      success: function(data) {
+        mapControl.addAirspace(data.airspace);
+    }
+});
+}
     
     function showDeclaration(task)  {
         //No longer testing for empty start coordinates as this is done before function is called
@@ -57,7 +70,7 @@
         mapControl.zapTask();
     }
       
-    function getTask(mapControl)   {
+     function getTask(mapControl)   {
         //Accept lower case- easier for touch screens
         var taskdef=$('#userTask').val().toUpperCase();
        if(taskdef.match("^[A-Z0-9]{3}(-[A-Z0-9]{3})+$")) {
@@ -218,6 +231,7 @@
     
     $(document).ready(function () {
         var mapControl = createMapControl('map');
+        showAirspace(mapControl);
         $('#fileControl').change(function () {
             if (this.files.length > 0) {
                 var reader = new FileReader();
@@ -226,8 +240,8 @@
                       $('#errorMessage').text('');
                       mapControl.reset();
                       $('#timeSlider').val(0);
-
                       igcFile = parseIGC(this.result);
+                      
                       displayIgc(mapControl);
                   } catch (ex) {
                       if (ex instanceof IGCException) {

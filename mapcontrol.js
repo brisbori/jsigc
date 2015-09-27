@@ -118,6 +118,33 @@ function createMapControl(elementName) {
             }
         },
 
+ addAirspace: function(airdata) {
+var i;
+var myPoints;
+var polygon;
+var myStyle = {
+    "color": "black",
+    "weight": 1,
+    "opacity": 0.20,
+    "fillColor": "red",
+    "smoothFactor": 0.1
+};
+var suafeatures=[];
+for(i=0 ; i < airdata.length;i++) {
+       switch(airdata[i].shape)  {
+           case "polygon":
+            myPoints=airdata[i].coords;
+            suafeatures[i] =  L.polygon(myPoints,myStyle);
+            break;
+           case "circle":
+              suafeatures[i] =new  L.Circle(airdata[i].centre, airdata[i].radius, myStyle);
+               break;
+       }
+}
+         mapLayers.airspace = L.layerGroup(suafeatures).addTo(map); 
+         layersControl.addOverlay(mapLayers.airspace, 'Airspace');
+        },
+                
         addTrack: function (latLong) {
             trackLatLong = latLong;
             var trackLine = L.polyline(latLong, { color: 'red' });
@@ -144,7 +171,7 @@ function createMapControl(elementName) {
             var taskDrawOptions = {
                 color: 'green',
                 weight: 3,
-                opacity: 0.8
+                opacity: 0.2
             };
             //definitions from BGA rules
             //defined here as any future changes will be easier
