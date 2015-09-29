@@ -60,7 +60,7 @@
     </p>
     <p>
     <b>Warning:</b> Outlines of boundaries of UK controlled airspace will be displayed on the map.<br>
-    These are provided for guidance only; accuracy is not guaranteed and they should be used for guidance only.
+    These are provided for guidance only; accuracy is not guaranteed and they should not be regarded as definitive..
     </p>
 
     <div id="errorMessage">
@@ -70,9 +70,19 @@
     <p>
         <label for="altitudeUnits">Altitude units:</label>
         <select id="altitudeUnits">
-            <option value="metres">Metres</option>
             <option value="feet">Feet</option>
+            <option value="metres">Metres</option>
         </select>
+        &nbsp;&nbsp; 
+        <label for="airclip">Clip airspace above:</label>
+        <select id="airclip" autocomplete="off">
+            <option value="4501">4500</option>
+            <option value="6001" selected>6000</option>
+            <option value="9001">9000</option>
+            <option value="12001">12000</option>
+            <option value="19501">19500</option>
+        </select>
+        feet
     </p>
 
     <div id="task">

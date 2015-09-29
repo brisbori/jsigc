@@ -3,18 +3,18 @@
 
     var igcFile = null;
     var barogramPlot = null;
-    var altitudeConversionFactor = 1.0; // Conversion from metres to required units
+    var altitudeConversionFactor =  3.2808399; // Conversion from metres to required units
     var userTask = null;
-
     
-    function showAirspace(mapControl)  {
+   function showAirspace(mapControl)  {
+        var clip=Number( $("#airclip").val());
      //use instead of $.json to avoid load from cache
        $.ajax({
        cache: false,
        url: "ukair.json",
        dataType: "json",
       success: function(data) {
-        mapControl.addAirspace(data.airspace);
+        mapControl.addAirspace(data.airspace,clip);
     }
 });
 }
@@ -231,7 +231,7 @@
     
     $(document).ready(function () {
         var mapControl = createMapControl('map');
-        showAirspace(mapControl);
+         showAirspace(mapControl);
         $('#fileControl').change(function () {
             if (this.files.length > 0) {
                 var reader = new FileReader();
@@ -240,6 +240,7 @@
                       $('#errorMessage').text('');
                       mapControl.reset();
                       $('#timeSlider').val(0);
+                     // showAirspace(mapControl);
                       igcFile = parseIGC(this.result);
                       
                       displayIgc(mapControl);
@@ -308,6 +309,10 @@
          
       $('#taskClearButton').click(function() {
              clearTask(mapControl);
+         });   
+      
+        $('#airclip').change(function() {
+             showAirspace(mapControl);
          });    
       
          $('#barogram').on('plotclick', function (event, pos, item) {

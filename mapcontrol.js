@@ -118,33 +118,42 @@ function createMapControl(elementName) {
             }
         },
 
- addAirspace: function(airdata) {
+ zapAirspace: function()  {if (mapLayers.airspace) {
+                map.removeLayer(mapLayers.airspace);
+                layersControl.removeLayer(mapLayers.airspace);
+            }
+ },
+        
+ addAirspace: function(airdata,clip) {
 var i;
-var myPoints;
-var polygon;
-var myStyle = {
+var polyPoints;
+var airStyle = {
     "color": "black",
     "weight": 1,
     "opacity": 0.20,
     "fillColor": "red",
     "smoothFactor": 0.1
 };
+var j=0;
 var suafeatures=[];
+this.zapAirspace();
 for(i=0 ; i < airdata.length;i++) {
-       switch(airdata[i].shape)  {
-           case "polygon":
-            myPoints=airdata[i].coords;
-            suafeatures[i] =  L.polygon(myPoints,myStyle);
-            break;
-           case "circle":
-              suafeatures[i] =new  L.Circle(airdata[i].centre, airdata[i].radius, myStyle);
-               break;
+       if(airdata[i].base < clip)  {
+            switch(airdata[i].shape)  {
+                case "polygon":
+                  polyPoints=airdata[i].coords;
+                  suafeatures[j++] =  L.polygon(polyPoints,airStyle);
+                 break;
+                case "circle":
+                   suafeatures[j++] =new  L.Circle(airdata[i].centre, airdata[i].radius, airStyle);
+                  break;
+          }
        }
 }
          mapLayers.airspace = L.layerGroup(suafeatures).addTo(map); 
          layersControl.addOverlay(mapLayers.airspace, 'Airspace');
         },
-                
+                     
         addTrack: function (latLong) {
             trackLatLong = latLong;
             var trackLine = L.polyline(latLong, { color: 'red' });
