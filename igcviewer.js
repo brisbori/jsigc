@@ -196,7 +196,7 @@ function showAirspace(mapControl)  {
     
     function displayIgc(mapControl) {
         //Display task if there is anything to display
-        if ((igcFile.task.coordinates.length > 0) && (igcFile.task.coordinates[0][0]!==0))    {
+        if ((igcFile.task.coordinates.length > 1) && (igcFile.task.coordinates[0][0]!==0))    {
                showDeclaration(igcFile.task);
                 mapControl.addTask(igcFile.task.coordinates, igcFile.task.names);
                 }
