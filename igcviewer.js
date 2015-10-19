@@ -4,12 +4,19 @@
     var igcFile = null;
     var barogramPlot = null;
     var altitudeConversionFactor =  3.2808399; // Conversion from metres to required units
+    var flightarea= null;
    
 function showAirspace(mapControl)  {
     var clip=Number( $("#airclip").val());
-    var showbounds=mapControl.getShowbounds();
     if(clip!==0) {
-    $.post("getairspace.php",{maxNorth: showbounds['north'], minNorth: showbounds['south'],maxEast:showbounds['east'] ,minEast:showbounds['west']} , function(data,status) {
+    $.post("getairspace.php",
+           {
+               maxNorth: flightarea['north'],
+               minNorth: flightarea['south'],
+               maxEast: flightarea['east'] ,
+                minEast:flightarea['west']
+        } ,
+              function(data,status) {
               if(status==="success")  {
                      $('#airspace_src').html(data.country);
                      $('#airspace_info').show();
@@ -227,6 +234,7 @@ function showAirspace(mapControl)  {
         
         mapControl.addTrack(igcFile.latLong);
         barogramPlot = plotBarogram(igcFile);
+        flightarea=mapControl.getShowbounds();
         showAirspace(mapControl);
         $('#timeSlider').prop('max', igcFile.recordTime.length - 1);
         updateTimeline(0, mapControl);
